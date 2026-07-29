@@ -1,0 +1,24 @@
+libpkgcheck(3)
+
+# NAME
+
+libpkgcheck - transaction-bound package check authority
+
+# SYNOPSIS
+
+```
+#include <libpkgcheck/libpkgcheck.h>
+```
+
+# DESCRIPTION
+
+*libpkgcheck* admits one exact transaction check node against its unique build
+predecessor and one successful native build result. It retains the source-owned
+check program, exact check-input trees, and typed terminal result evidence.
+
+The library does not prepare resources or execute programs.
+
+# SEE ALSO
+
+*pkgcheck_request*(3), *pkgcheck_result*(3), *libpkgbuild*(3),
+*libpkgtransaction*(3)

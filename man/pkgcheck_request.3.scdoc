@@ -1,0 +1,31 @@
+pkgcheck_request(3)
+
+# NAME
+
+pkgcheck_request - seal one exact native package check request
+
+# SYNOPSIS
+
+```
+auto request = pkgcheck::check_request::seal(
+    transaction, check_node_identity, successful_build_result);
+```
+
+# DESCRIPTION
+
+A request is valid only when the named node is a transaction check action with a
+unique *build_before_check* predecessor. Both nodes must retain the same resolver
+selection. The successful build result must match the selected package release,
+source snapshot, architectures, and exact source-owned check program.
+
+The request retains the complete build result and a projection of package inputs
+whose scope is exactly *check*.
+
+# ERRORS
+
+Admission throws *pkgcheck::error* for wrong actions, absent or inconsistent
+phase authority, failed builds, and mismatched build authority.
+
+# SEE ALSO
+
+*libpkgcheck*(3), *pkgcheck_result*(3)

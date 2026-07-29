@@ -1,0 +1,26 @@
+pkgcheck_result(3)
+
+# NAME
+
+pkgcheck_result - seal terminal package check evidence
+
+# SYNOPSIS
+
+```
+auto passed = pkgcheck::check_result::passed(request, execution);
+auto failed = pkgcheck::check_result::failed(
+    request, execution, failure_kind, failure_evidence);
+```
+
+# DESCRIPTION
+
+A passed result binds one exact check request to typed execution evidence. A
+failed result additionally binds one failure classification and typed failure
+evidence.
+
+The core does not interpret process status or backend diagnostics. That mapping
+belongs to the execution adapter.
+
+# SEE ALSO
+
+*libpkgcheck*(3), *pkgcheck_request*(3)
