@@ -1,0 +1,82 @@
+# SPDX-FileCopyrightText: 2026 Alexandr Savca
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [shared, static]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: >-
+          sudo apt-get update && sudo apt-get install -y
+          g++ meson ninja-build pkg-config libssl-dev scdoc
+      - name: Checkout exact authorities
+        run: |
+          git clone https://github.com/zeppe-lin/libpkgsource.git ../libpkgsource
+          git -C ../libpkgsource checkout fb48d79d1814959fbda0ac6740b26a76f50c1222
+          git clone https://github.com/zeppe-lin/libpkgstate.git ../libpkgstate
+          git -C ../libpkgstate checkout e8b1181dd65ebf53feaadbaae4e8a1e6acfa9374
+          git clone https://github.com/zeppe-lin/libpkgcatalog.git ../libpkgcatalog
+          git -C ../libpkgcatalog checkout eea4eadbd6558fe58f43b37c2016d40a771a2cd9
+          git clone https://github.com/zeppe-lin/libpkgresolve.git ../libpkgresolve
+          git -C ../libpkgresolve checkout 8c93bcbcc0e41352a4460849e127f630793413d6
+          git clone https://github.com/zeppe-lin/libpkgtransaction.git ../libpkgtransaction
+          git -C ../libpkgtransaction checkout a0ec04000e9f86546952635cb0b8f991be624838
+          git clone https://github.com/zeppe-lin/libpkgbuild.git ../libpkgbuild
+          git -C ../libpkgbuild checkout fda7ccc10a9955eb7cdaf00c2a00104590fdd3d5
+      - name: Build exact authority closure
+        run: |
+          set -eu
+          prefix="$GITHUB_WORKSPACE/dependencies-${{ matrix.mode }}"
+          export PKG_CONFIG_PATH="$prefix/lib/pkgconfig"
+          configure_install() {
+            source=$1
+            shift
+            meson setup "$source/build-${{ matrix.mode }}" \
+              --prefix="$prefix" --libdir=lib \
+              -Ddefault_library=${{ matrix.mode }} \
+              -Dlink_mode=${{ matrix.mode }} "$@"
+            meson compile -C "$source/build-${{ matrix.mode }}"
+            meson install -C "$source/build-${{ matrix.mode }}"
+          }
+          configure_install ../libpkgsource \
+            -Dyaml_adapter=disabled -Dplanner_adapter=disabled \
+            -Dtests=disabled -Dman_pages=disabled
+          configure_install ../libpkgstate \
+            -Dtools=disabled -Dsource_adapter=disabled \
+            -Dbuild_adapter=disabled -Dplanner_adapter=disabled \
+            -Dapplication_adapter=disabled -Dtests=disabled \
+            -Dman_pages=disabled
+          configure_install ../libpkgcatalog \
+            -Dacquisition_adapter=disabled -Dscan_tool=disabled \
+            -Dtests=disabled -Dman_pages=disabled
+          configure_install ../libpkgresolve \
+            -Dtests=disabled -Dman_pages=disabled
+          configure_install ../libpkgtransaction \
+            -Dtests=disabled -Dman_pages=disabled
+          configure_install ../libpkgbuild \
+            -Dplanner_adapter=disabled -Dtests=disabled \
+            -Dman_pages=disabled
+      - name: Configure
+        run: |
+          prefix="$GITHUB_WORKSPACE/dependencies-${{ matrix.mode }}"
+          PKG_CONFIG_PATH="$prefix/lib/pkgconfig" meson setup build \
+            --prefix="$prefix" --libdir=lib \
+            -Ddefault_library=${{ matrix.mode }} \
+            -Dlink_mode=${{ matrix.mode }} \
+            -Dman_pages=enabled
+      - name: Compile
+        run: meson compile -C build
+      - name: Test
+        run: |
+          prefix="$GITHUB_WORKSPACE/dependencies-${{ matrix.mode }}"
+          LD_LIBRARY_PATH="$prefix/lib" \
+            meson test -C build --print-errorlogs
