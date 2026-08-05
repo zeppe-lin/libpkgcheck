@@ -6,8 +6,7 @@ Zeppe-Lin.
 It admits one exact transaction `check` node only after the corresponding
 transaction `build` node has produced a successful `libpkgbuild` result. The
 sealed request retains the transaction-program identity, both phase nodes, the
-complete build result, the exact source-owned check program, and the projected
-check-input trees.
+complete build result, the exact source-owned check program, and the projected resolver-issued logical check inputs.
 
 The library also seals terminal passed or failed results against typed execution
 and failure evidence identities. It does not prepare filesystem resources,

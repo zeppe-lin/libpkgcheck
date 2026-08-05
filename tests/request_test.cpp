@@ -16,7 +16,7 @@ int main()
       value.transaction, pkgtransaction::transaction_action_kind::check);
   const auto& build_node = check_fixture::node(
       value.transaction, pkgtransaction::transaction_action_kind::build);
-  auto build = check_fixture::successful_build(value.checked, value.tester);
+  auto build = check_fixture::successful_build(value.transaction);
   const auto request = check_request::seal(
       value.transaction, check.identity(), build);
   const auto repeated = check_request::seal(
@@ -31,9 +31,9 @@ int main()
              pkgsource::program_language::posix_shell);
   TEST_CHECK(request.program().material() == "printf 'checked\\n'\n");
   TEST_CHECK(request.inputs().inputs().size() == 1U);
-  TEST_CHECK(request.inputs().inputs().front().resolved().scope() ==
+  TEST_CHECK(request.inputs().inputs().front().scope() ==
              pkgbuild::input_scope::check);
-  TEST_CHECK(request.inputs().inputs().front().resolved().declared_package().name() ==
+  TEST_CHECK(request.inputs().inputs().front().package().name() ==
              "tester");
 
   TEST_PKGCHECK_THROWS(
@@ -44,23 +44,23 @@ int main()
       error_code::build_failed,
       check_request::seal(
           value.transaction, check.identity(),
-          check_fixture::failed_build(value.checked, value.tester)));
+          check_fixture::failed_build(value.transaction)));
 
   auto changed = check_fixture::make_scenario("printf 'changed\\n'\n");
   TEST_PKGCHECK_THROWS(
       error_code::inconsistent_build_authority,
       check_request::seal(
           value.transaction, check.identity(),
-          check_fixture::successful_build(changed.checked, changed.tester)));
+          check_fixture::successful_build(changed.transaction)));
 
   const auto changed_request = check_request::seal(
       changed.transaction,
       check_fixture::node(
           changed.transaction,
           pkgtransaction::transaction_action_kind::check).identity(),
-      check_fixture::successful_build(changed.checked, changed.tester));
+      check_fixture::successful_build(changed.transaction));
   TEST_CHECK(request.identity() != changed_request.identity());
-  TEST_CHECK(request.inputs().identity() == changed_request.inputs().identity());
+  TEST_CHECK(request.inputs().identity() != changed_request.inputs().identity());
 
   const auto foreign = check_fixture::make_scenario("true\n");
   const auto& foreign_check = check_fixture::node(

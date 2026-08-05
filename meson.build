@@ -3,7 +3,7 @@
 project(
   'libpkgcheck',
   'cpp',
-  version: '0.1.0',
+  version: '0.2.0',
   license: 'GPL-3.0-or-later',
   meson_version: '>=1.2.0',
   default_options: [
@@ -26,21 +26,20 @@ endif
 libcrypto_dep = dependency('libcrypto', required: true, static: want_static)
 libpkgbuild_dep = dependency(
   'libpkgbuild',
-  version: '>=2.0.0',
+  version: ['>=3.0.0', '<4.0.0'],
   required: true,
   static: want_static,
   fallback: ['libpkgbuild', 'libpkgbuild_dep'],
   default_options: [
     'default_library=' + library_kind,
     'link_mode=' + get_option('link_mode'),
-    'planner_adapter=disabled',
     'man_pages=disabled',
     'tests=disabled',
   ],
 )
 libpkgtransaction_dep = dependency(
   'libpkgtransaction',
-  version: '>=2.0.0',
+  version: ['>=2.1.0', '<3.0.0'],
   required: true,
   static: want_static,
   fallback: ['libpkgtransaction', 'libpkgtransaction_dep'],

@@ -1,5 +1,12 @@
 # History
 
+0.2.0 - 2026-08-05
+------------------
+
+- Project exact resolver-issued logical check inputs from the build request.
+- Remove materialized package trees and forged tree identities from core authority.
+- Rebuild against libpkgbuild 3 without changing the first semantic protocols.
+
 0.1.0 - 2026-07-29
 ------------------
 

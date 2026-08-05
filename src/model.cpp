@@ -10,14 +10,13 @@ namespace pkgcheck {
 namespace {
 
 check_input_set_identity identify_inputs(
-    const std::vector<pkgbuild::materialized_package_input>& inputs)
+    const std::vector<pkgbuild::build_input>& inputs)
 {
   detail::identity_writer writer;
   writer.text("pkgcheck/check-input-set/v1");
   writer.number(inputs.size());
   for (const auto& input : inputs) {
-    writer.text(input.resolved().identity().hex());
-    writer.text(input.tree().hex());
+    writer.text(input.identity().hex());
   }
   return check_input_set_identity::from_sha256(writer.finish());
 }
@@ -45,7 +44,7 @@ std::string_view to_string(check_failure_kind value) noexcept
 }
 
 check_input_set::check_input_set(
-    std::vector<pkgbuild::materialized_package_input> inputs,
+    std::vector<pkgbuild::build_input> inputs,
     check_input_set_identity identity)
     : inputs_(std::move(inputs)), identity_(std::move(identity))
 {
@@ -58,7 +57,7 @@ check_input_set check_input_set::project(
   return check_input_set(inputs, identify_inputs(inputs));
 }
 
-const std::vector<pkgbuild::materialized_package_input>&
+const std::vector<pkgbuild::build_input>&
 check_input_set::inputs() const noexcept
 {
   return inputs_;

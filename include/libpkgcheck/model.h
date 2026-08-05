@@ -21,12 +21,12 @@ enum class check_failure_kind { execution_unavailable, program_failed, cancelled
 [[nodiscard]] std::string_view to_string(check_outcome value) noexcept;
 [[nodiscard]] std::string_view to_string(check_failure_kind value) noexcept;
 
-/*! \brief Exact materialized package trees visible only to check execution. */
+/*! \brief Exact logical check inputs projected from build authority. */
 class check_input_set final {
 public:
   [[nodiscard]] static check_input_set project(
       const pkgbuild::build_request& build);
-  [[nodiscard]] const std::vector<pkgbuild::materialized_package_input>&
+  [[nodiscard]] const std::vector<pkgbuild::build_input>&
   inputs() const noexcept;
   [[nodiscard]] const check_input_set_identity& identity() const noexcept;
   friend bool operator==(const check_input_set& lhs,
@@ -35,9 +35,9 @@ public:
                          const check_input_set& rhs) noexcept;
 private:
   check_input_set(
-      std::vector<pkgbuild::materialized_package_input> inputs,
+      std::vector<pkgbuild::build_input> inputs,
       check_input_set_identity identity);
-  std::vector<pkgbuild::materialized_package_input> inputs_;
+  std::vector<pkgbuild::build_input> inputs_;
   check_input_set_identity identity_;
 };
 

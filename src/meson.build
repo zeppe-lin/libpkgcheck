@@ -44,8 +44,10 @@ pkgconf.generate(
   description: 'Transaction-bound package check authority',
   subdirs: '.',
   requires: [
-    'libpkgbuild >= 2.0.0',
-    'libpkgtransaction >= 2.0.0',
+    'libpkgbuild >= 3.0.0',
+    'libpkgbuild < 4.0.0',
+    'libpkgtransaction >= 2.1.0',
+    'libpkgtransaction < 3.0.0',
   ],
   requires_private: ['libcrypto'],
 )
