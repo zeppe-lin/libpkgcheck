@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Alexandr Savca
 # SPDX-License-Identifier: GPL-3.0-or-later
-if get_option('tests').enabled()
+if get_option('tests').allowed()
   foreach item : [
     ['request', 'request_test.cpp'],
     ['result', 'result_test.cpp'],
