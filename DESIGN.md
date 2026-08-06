@@ -35,8 +35,10 @@ input set. `check_input_set::project()` retains only entries whose exact scope i
 `pkgbuild::input_scope::check`.
 
 The projection does not resolve requirements, discover host paths, inspect
-artifacts, or construct mount points. Each retained entry still carries its
-resolved package input and exact materialized tree identity.
+artifacts, or construct mount points. Each retained entry is the exact
+resolver-backed `pkgbuild::build_input` already sealed by the build request.
+Concrete resource identities and host paths are admitted later by
+`libpkgcheck-exec`; the core issues no package-tree or materialization authority.
 
 ## Result authority
 
@@ -46,7 +48,7 @@ A passed result retains:
 - one typed check-execution evidence identity.
 
 A failed result additionally retains one failure classification and one typed
-failure-evidence identity. Version 0.1 defines three failure classes:
+failure-evidence identity. The result model defines three failure classes:
 
 - execution unavailable;
 - program failed; and
@@ -58,7 +60,7 @@ from exit status, signals, logs, cleanup, or backend diagnostics.
 
 ## Identity domains
 
-Version 0.1 defines separate SHA-256 domains for:
+The first-generation protocols define separate SHA-256 domains for:
 
 - projected check-input sets;
 - transaction-bound check requests;
@@ -75,7 +77,7 @@ are not check semantic authority.
 
 ## Deliberate omissions
 
-Version 0.1 has no:
+The current core has no:
 
 - filesystem or archive materialization;
 - execution root, credentials, interpreter, or mount policy;
