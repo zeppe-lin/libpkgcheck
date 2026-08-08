@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include "fixture_transaction.h"
+#include "transaction.h"
 
 #include <libpkgbuild/libpkgbuild.h>
 #include <libpkgcheck/libpkgcheck.h>
@@ -44,6 +44,40 @@ inline scenario make_scenario(
   return {std::move(checked), std::move(tester), std::move(transaction)};
 }
 
+
+inline scenario make_multi_input_scenario()
+{
+  auto profiles = fixture::profiles();
+  auto checked = fixture::source(
+      profiles, "checked",
+      {
+          fixture::requirement(pkgsource::requirement_scope::build(),
+                               "builder", "requirements.build[0]"),
+          fixture::requirement(pkgsource::requirement_scope::check(),
+                               "tester", "requirements.check[0]"),
+          fixture::requirement(pkgsource::requirement_scope::check(),
+                               "lint-data", "requirements.check[1]"),
+      },
+      {"x86_64"}, {"x86_64"}, "1.0.0", 1, {},
+      std::string("printf 'checked\\n'\n"));
+  auto builder = fixture::source(profiles, "builder");
+  auto tester = fixture::source(profiles, "tester");
+  auto lint_data = fixture::source(profiles, "lint-data");
+  auto catalog = fixture::catalog(
+      profiles, {checked, builder, tester, lint_data});
+  auto resolution = fixture::resolution(
+      std::move(catalog), fixture::empty_state(),
+      {
+          fixture::package_goal(pkgsource::requirement_scope::build(),
+                                "checked", "test-build"),
+          fixture::package_goal(pkgsource::requirement_scope::check(),
+                                "checked", "test-check"),
+      });
+  auto transaction = pkgtransaction::compose(
+      pkgtransaction::transaction_request::seal(std::move(resolution)));
+  return {std::move(checked), std::move(tester), std::move(transaction)};
+}
+
 inline const pkgtransaction::transaction_node& node(
     const pkgtransaction::transaction_program& transaction,
     pkgtransaction::transaction_action_kind action,
@@ -77,10 +111,11 @@ inline pkgbuild::build_request request(
 
 inline pkgbuild::build_result successful_build(
     const pkgtransaction::transaction_program& transaction,
-    char seed = 'b')
+    char seed = 'b',
+    std::uint32_t parallelism = 2)
 {
   return pkgbuild::build_result::succeeded(
-      request(transaction), pkgbuild::payload_manifest::seal({}),
+      request(transaction, parallelism), pkgbuild::payload_manifest::seal({}),
       pkgbuild::sealed_artifact::make(
           pkgbuild::artifact_encoding::package_tar,
           pkgbuild::artifact_compression::none, 128,

@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 Alexandr Savca
 # SPDX-License-Identifier: GPL-3.0-or-later
 set -eu
-root=$1
+root=${1:?}
 request=$root/src/request.cpp
 result=$root/src/result.cpp
 design=$root/DESIGN.md
@@ -10,6 +10,8 @@ design=$root/DESIGN.md
 grep -q 'transaction_action_kind::check' "$request"
 grep -q 'phase_order_kind::build_before_check' "$request"
 grep -q 'build_outcome::succeeded' "$request"
+grep -q 'request.subject().identity()' "$request"
+grep -q 'request.inputs().resolution()' "$request"
 grep -q 'recipe().check_program()' "$request"
 grep -q 'input_scope::check' "$root/src/model.cpp"
 grep -q 'pkgbuild::build_input' "$root/include/libpkgcheck/model.h"

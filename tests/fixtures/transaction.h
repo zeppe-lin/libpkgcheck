@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include "fixture.h"
+#include "source_state.h"
 
 #include <libpkgtransaction/libpkgtransaction.h>
 

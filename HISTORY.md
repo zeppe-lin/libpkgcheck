@@ -7,6 +7,7 @@
 - Remove materialized package trees and forged tree identities from core authority.
 - Rebuild against libpkgbuild 3 without changing the first semantic protocols.
 - Bind admitted build evidence to the transaction's exact resolver selection and resolution result.
+- Separate unit, integration, header, and contract qualification by evidence role.
 
 0.1.0 - 2026-07-29
 ------------------
