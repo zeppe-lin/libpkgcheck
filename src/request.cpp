@@ -61,6 +61,7 @@ void require_same_selection(
 }
 
 void require_build_authority(
+    const pkgtransaction::transaction_program& transaction,
     const pkgtransaction::transaction_node& build_node,
     const pkgtransaction::transaction_node& check_node,
     const pkgbuild::build_result& build)
@@ -79,8 +80,11 @@ void require_build_authority(
 
   const auto& request = build.request();
   const auto& source = request.source();
+  const auto& resolution = transaction.request().resolution();
   const auto& source_program = source.recipe().check_program();
-  if (request.release().identity() != selection->release().identity() ||
+  if (request.subject().identity() != selection->identity() ||
+      request.inputs().resolution() != resolution.identity() ||
+      request.release().identity() != selection->release().identity() ||
       source.identity() != selection->source_snapshot() ||
       request.architectures().build() != selection->architectures().build() ||
       request.architectures().target() != selection->architectures().target() ||
@@ -137,7 +141,7 @@ check_request check_request::seal(
 
   const auto& build_node = require_build_predecessor(transaction, check_node);
   require_same_selection(build_node, check_node);
-  require_build_authority(build_node, check_node, build);
+  require_build_authority(transaction, build_node, check_node, build);
   auto inputs = check_input_set::project(build.request());
   auto identity = identify_request(transaction.identity(), build_node,
                                    check_node, build, inputs);

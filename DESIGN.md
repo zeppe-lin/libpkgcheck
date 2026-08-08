@@ -20,8 +20,11 @@ A request is admitted from three existing authorities:
 
 Admission requires a unique `build_before_check` phase edge. The predecessor
 must be a build node retaining the same resolver selection as the check node.
-The build result must realize that exact package release, source snapshot, build
-architecture, target architecture, and source-owned check program.
+The build result must retain the exact resolver selection and resolution result
+used by the transaction, and must realize that exact package release, source
+snapshot, build architecture, target architecture, and source-owned check
+program. A build from another resolution context is not interchangeable merely
+because its visible source fields happen to match.
 
 The source snapshot remains the owner of program bytes. `libpkgcheck` does not
 copy them into a second declaration format. The retained transaction node

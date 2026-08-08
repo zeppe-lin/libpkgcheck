@@ -21,7 +21,9 @@ struct scenario final {
 };
 
 inline scenario make_scenario(
-    std::string check_program = "printf 'checked\\n'\n")
+    std::string check_program = "printf 'checked\\n'\n",
+    pkgresolve::installed_preference preference =
+        pkgresolve::installed_preference::retain_compatible)
 {
   auto profiles = fixture::profiles();
   auto checked = fixture::source(
@@ -35,7 +37,8 @@ inline scenario make_scenario(
   auto resolution = fixture::resolution(
       std::move(catalog), fixture::empty_state(),
       {fixture::package_goal(pkgsource::requirement_scope::check(),
-                             "checked")});
+                             "checked")},
+      preference);
   auto transaction = pkgtransaction::compose(
       pkgtransaction::transaction_request::seal(std::move(resolution)));
   return {std::move(checked), std::move(tester), std::move(transaction)};

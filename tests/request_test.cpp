@@ -69,5 +69,25 @@ int main()
       error_code::inconsistent_transaction,
       check_request::seal(value.transaction, foreign_check.identity(), build));
 
+  const auto foreign_resolution = check_fixture::make_scenario(
+      "printf 'checked\\n'\n",
+      pkgresolve::installed_preference::prefer_catalog);
+  const auto& foreign_build_node = check_fixture::node(
+      foreign_resolution.transaction,
+      pkgtransaction::transaction_action_kind::build);
+  const auto foreign_build =
+      check_fixture::successful_build(foreign_resolution.transaction);
+  TEST_CHECK(foreign_build_node.selection());
+  TEST_CHECK(build_node.selection());
+  TEST_CHECK(foreign_build_node.selection()->identity() !=
+             build_node.selection()->identity());
+  TEST_CHECK(foreign_build.request().release().identity() ==
+             build.request().release().identity());
+  TEST_CHECK(foreign_build.request().source().identity() ==
+             build.request().source().identity());
+  TEST_PKGCHECK_THROWS(
+      error_code::inconsistent_build_authority,
+      check_request::seal(value.transaction, check.identity(), foreign_build));
+
   return 0;
 }
